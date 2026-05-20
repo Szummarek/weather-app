@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud Weather App</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>☁ Cloud Weather App</h1>
+
+    <form method="POST">
+        <input type="text" name="city" placeholder="Wpisz miasto">
+        <button type="submit">Szukaj</button>
+    </form>
+
+    {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {% if weather %}
+        <div class="weather-card">
+
+            <h2>{{ weather.city }}</h2>
+
+            <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png">
+
+            <p class="temp">{{ weather.temperature }}°C</p>
+
+            <p>{{ weather.description }}</p>
+
+            <p>💧 Wilgotność: {{ weather.humidity }}%</p>
+
+            <p>🌬 Wiatr: {{ weather.wind }} m/s</p>
+
+        </div>
+
+        <h2>Prognoza</h2>
+
+        <div class="forecast-container">
+
+            {% for item in forecast %}
+
+                <div class="forecast-card">
+                    <p>{{ item.dt_txt }}</p>
+
+                    <img src="http://openweathermap.org/img/wn/{{ item.weather[0].icon }}@2x.png">
+
+                    <p>{{ item.main.temp }}°C</p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
