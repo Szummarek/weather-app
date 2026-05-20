@@ -9,35 +9,70 @@ app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
 
+search_history = []
+
 @app.route("/", methods=["GET", "POST"])
 def index():
+
     weather = None
     forecast = None
     error = None
+    background = "clear"
 
     city = "Warsaw"
 
     if request.method == "POST":
+
         city = request.form.get("city")
 
-    try:
-        # Aktualna pogoda
-        current_url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+        if not city:
+            error = "Wpisz nazwę miasta."
+            return render_template(
+                "index.html",
+                error=error,
+                history=search_history
+            )
 
-        current_response = requests.get(current_url)
+    try:
+
+        current_url = (
+            f"https://api.openweathermap.org/data/2.5/weather"
+            f"?q={city}&appid={API_KEY}&units=metric"
+        )
+
+        current_response = requests.get(current_url, timeout=5)
+
         current_data = current_response.json()
 
         if current_response.status_code != 200:
             error = "Nie znaleziono miasta."
-            return render_template("index.html", error=error)
+            return render_template(
+                "index.html",
+                error=error,
+                history=search_history
+            )
 
-        # Prognoza 7 dni
+        description = current_data["weather"][0]["main"]
+
+        if description == "Rain":
+            background = "rain"
+
+        elif description == "Clear":
+            background = "clear"
+
+        elif description == "Snow":
+            background = "snow"
+
         lat = current_data["coord"]["lat"]
         lon = current_data["coord"]["lon"]
 
-        forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+        forecast_url = (
+            f"https://api.openweathermap.org/data/2.5/forecast"
+            f"?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+        )
 
-        forecast_response = requests.get(forecast_url)
+        forecast_response = requests.get(forecast_url, timeout=5)
+
         forecast_data = forecast_response.json()
 
         weather = {
@@ -51,14 +86,19 @@ def index():
 
         forecast = forecast_data["list"][:7]
 
-    except Exception as e:
-        error = "Wystąpił błąd podczas pobierania danych."
+        if city not in search_history:
+            search_history.append(city)
+
+    except:
+        error = "Błąd połączenia z API."
 
     return render_template(
         "index.html",
         weather=weather,
         forecast=forecast,
-        error=error
+        error=error,
+        background=background,
+        history=search_history
     )
 
 if __name__ == "__main__":

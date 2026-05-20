@@ -1,41 +1,79 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+
     <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Cloud Weather App</title>
+
     <link rel="stylesheet" href="/static/style.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 </head>
-<body>
+
+<body class="{{ background }}">
 
 <div class="container">
 
     <h1>☁ Cloud Weather App</h1>
 
-    <form method="POST">
-        <input type="text" name="city" placeholder="Wpisz miasto">
-        <button type="submit">Szukaj</button>
+    <button onclick="toggleDarkMode()" class="dark-btn">
+        🌙 Dark Mode
+    </button>
+
+    <form method="POST" onsubmit="showLoader()">
+
+        <input
+            type="text"
+            name="city"
+            placeholder="Wpisz miasto">
+
+        <button type="submit">
+            Szukaj
+        </button>
+
     </form>
 
+    <div id="loader" class="loader hidden"></div>
+
     {% if error %}
+
         <div class="error">
             {{ error }}
         </div>
+
     {% endif %}
 
     {% if weather %}
+
         <div class="weather-card">
 
             <h2>{{ weather.city }}</h2>
 
-            <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png">
+            <img
+            src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png">
 
-            <p class="temp">{{ weather.temperature }}°C</p>
+            <p class="temp">
+                {{ weather.temperature }}°C
+            </p>
 
-            <p>{{ weather.description }}</p>
+            <p>
+                {{ weather.description }}
+            </p>
 
-            <p>💧 Wilgotność: {{ weather.humidity }}%</p>
+            <p>
+                <i class="fa-solid fa-droplet"></i>
+                Wilgotność: {{ weather.humidity }}%
+            </p>
 
-            <p>🌬 Wiatr: {{ weather.wind }} m/s</p>
+            <p>
+                <i class="fa-solid fa-wind"></i>
+                Wiatr: {{ weather.wind }} m/s
+            </p>
 
         </div>
 
@@ -46,11 +84,14 @@
             {% for item in forecast %}
 
                 <div class="forecast-card">
+
                     <p>{{ item.dt_txt }}</p>
 
-                    <img src="http://openweathermap.org/img/wn/{{ item.weather[0].icon }}@2x.png">
+                    <img
+                    src="https://openweathermap.org/img/wn/{{ item.weather[0].icon }}@2x.png">
 
                     <p>{{ item.main.temp }}°C</p>
+
                 </div>
 
             {% endfor %}
@@ -59,7 +100,35 @@
 
     {% endif %}
 
+    <div class="history">
+
+        <h3>Ostatnio wyszukiwane</h3>
+
+        <ul>
+
+            {% for item in history %}
+
+                <li>{{ item }}</li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
 </div>
+
+<script>
+
+function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+}
+
+function showLoader() {
+    document.getElementById("loader").classList.remove("hidden");
+}
+
+</script>
 
 </body>
 </html>
